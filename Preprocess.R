@@ -13,7 +13,10 @@ columnsToUse<-
     "device_conn_type",
     "C15",
     "C16",
-    "C18"
+    "C18",
+    "site_category",
+    "app_domain",
+    "app_category"
     )
 
 #assert
@@ -23,9 +26,9 @@ if(sum(isColNotInNames)) print("!!WRONG COLUMN NAME IN LIST!!")
 #################
 # Create formula
 #################
-ctrFormula<-paste0(target,"~",columnsToUse[1])
+ctrFormula<-paste0(target,"~",columnsToUse[1],"Prepped")
 for(col in columnsToUse[2:length(columnsToUse)])
-  ctrFormula<-paste0(ctrFormula,"+",col)
+  ctrFormula<-paste0(ctrFormula,"+",col,"Prepped")
 
 ctrFormula<-formula(ctrFormula)
 
@@ -33,7 +36,7 @@ ctrFormula<-formula(ctrFormula)
 ###############
 # Create train & test
 ###############
-sizeTrain <-100000
+sizeTrain <-1000000
 sizeTest <- 1000000 
 trainSet<-ctrData[1:sizeTrain,]
 testSet<-ctrData[(sizeTrain+1):(sizeTrain+1+sizeTest),]
@@ -51,25 +54,34 @@ for(col in columnsToUse){
   
   newColName<-paste0(col,"Prepped")
   trainSet[,newColName]<-trainSet[,col]
-  trainSet[,!valueInTop10]<-"Other"
+  trainSet[!valueInTop10,newColName]<-rep("Other",sum(!valueInTop10))
 }
 
 ###########################
 # TRAIN MODEL
 ###########################
+rm(model)
 model<-glm(formula=ctrFormula,family = binomial(link="logit"),data=trainSet,control = list(maxit = 100),x=F,y=F)
+
+########################
+#PREP TEST
+########################
+for(col in columnsToUse){  
+  newColName<-paste0(col,"Prepped")
+  testSet[,newColName]<-testSet[,col]
+  
+  isNewValue<-!(testSet[,newColName] %in% unique(trainSet[,newColName]))
+  testSet[isNewValue,newColName]<-NA
+  print(paste0(newColName," NA:", sum(isNewValue)))
+}
 ###########################
 # TEST MODEL
 ###########################
 
-for(col in columnsToUse) {
-  isNewValue<-!(testSet[,col] %in% unique(trainSet[,col]))
-  testSet[isNewValue,col]<-NA
-  print(paste0(col," NA:", sum(isNewValue)))
-}
 
-#predictions<-predict(model,testSet,type="response")
-predictions<-predict(model,testSet,type="response",na.action = na.pass)
+rm(predictions)
+predictions<-predict(model,testSet,type="response")
+print(sum(is.na(predictions)))
 predictions[is.na(predictions)]<-0.17
 
 llfun(actual = testSet$clickNum,prediction = predictions)
