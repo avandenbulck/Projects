@@ -1,0 +1,16 @@
+{
+    "contents" : "\nsortedPlotBarchart<-function(data,columnName){\n  par(mfrow = c(1,2))\n  order <- order(table(data[,columnName]),decreasing = T)[1:10]\n  myTable<-table(data$click,data[,columnName])\n  myPropTable<-prop.table(myTable,2)\n  barplot(myPropTable[c(2,1),order],xlab = \"Category\",ylab = \"Click-through rate\")\n  barplot(sort(prop.table(table(data[,columnName])),decreasing = T)[1:10],ylim = c(0,1),xlab=\"10 most frequent categories\",ylab = \"Percent of all data\")\n}\n\nfor(currentCol in colnames(ctrData)[2:length(ctrData)])\n{\n  print(currentCol)\n  \n  graphName<-paste(\"C:/Users/alvd/Documents/Ordina/Kaggle/Plots/\",currentCol,\".jpg\",sep=\"\")\n  jpeg(graphName,width = 1350,height = 650)\n  sortedPlotBarchart(ctrData,currentCol)\n  dev.off()\n}\n\n\n\n\n\n\nplotBarchart<-function(data,columnName){\n  myTable<-table(data$click,data[,columnName])\n  myPropTable<-prop.table(myTable,2)\n  barplot(myPropTable[c(2,1),])\n}\n\n\n\n#Nicely distributed. Values differ a bit. Does contain 24 categories\nplotBarchart(ctrData,\"TimeOfDay\")\n#Can keep all. Could drop 1001 and 1008 if needed\nplotBarchart(ctrData,\"C1\")\n\n#Keep 0 and 1, other bins are extremely small\nplotBarchart(ctrData,\"banner_pos\")\n#Good\nplotBarchart(ctrData,\"site_category\")\n#decent\nplotBarchart(ctrData,\"app_category\")\n#good\nplotBarchart(ctrData,\"device_type\")\n#good\nplotBarchart(ctrData,\"device_conn_type\")\n#good\nplotBarchart(ctrData,\"C15\")\n#good\nplotBarchart(ctrData,\"C16\")\n#good\nplotBarchart(ctrData,\"C18\")\n#good\nplotBarchart(ctrData,\"C19\")\n#good\nplotBarchart(ctrData,\"C21\")\n\nbarplot(propTable)\n",
+    "created" : 1419694735276.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1036974750",
+    "id" : "16FB113E",
+    "lastKnownWriteTime" : 1419355008,
+    "path" : "~/Ordina/Kaggle/R/savePlots.R",
+    "project_path" : null,
+    "properties" : {
+    },
+    "source_on_save" : false,
+    "type" : "r_source"
+}

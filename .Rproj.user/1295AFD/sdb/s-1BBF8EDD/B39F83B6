@@ -1,0 +1,17 @@
+{
+    "contents" : "testData<-read.csv(\"C:/Users/alvd/Documents/Ordina/Kaggle/test.csv\",colClasses=c(rep(\"character\",23)))\n\nfor(col in columnsToUse){  \n  newColName<-paste0(col,\"Prepped\")\n  testData[,newColName]<-testData[,col]\n  \n  isNewValue<-!(testData[,newColName] %in% unique(trainSet[,col]))\n  testData[isNewValue,newColName]<-NA\n  print(paste0(newColName,\" NA:\", sum(isNewValue)))\n}\n\npredictions<-predict(model,testData,type=\"response\")\npredictions[is.na(predictions)]<-0.17\n\noutputFrame <- data.frame(id=testData$id,click=predictions)\nwrite.csv(outputFrame,\"outputFile.csv\",row.names=F,quote=F)\n",
+    "created" : 1419696045076.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2513045982",
+    "id" : "B39F83B6",
+    "lastKnownWriteTime" : 1419696554,
+    "path" : "~/Ordina/Kaggle/CTP_Project/writeOuputfile.R",
+    "project_path" : "writeOuputfile.R",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "source_on_save" : false,
+    "type" : "r_source"
+}

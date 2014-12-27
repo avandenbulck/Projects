@@ -1,0 +1,17 @@
+{
+    "contents" : "ctrData<-read.csv(\"../Data/sample.csv\",colClasses=c(rep(\"character\",24)))\n\n#The weird name gave problems\nctrData$id<-ctrData[,1]\n\nctrData$clickNum<-as.numeric(ctrData$click)\ntarget<-\"clickNum\"\ncolumnsToUse<-\n  c(\n    \"C1\",\n    \"banner_pos\",\n    \"device_type\",\n    \"device_conn_type\",\n    \"C15\",\n    \"C16\",\n    \"C18\",\n    \"site_category\",\n    \"app_domain\",\n    \"app_category\"\n    )\n\n#assert\nisColNotInNames<- !(columnsToUse %in% names(ctrData))\nif(sum(isColNotInNames)) print(\"!!WRONG COLUMN NAME IN LIST!!\")\n\n#################\n# Create formula\n#################\nctrFormula<-paste0(target,\"~\",columnsToUse[1],\"Prepped\")\nfor(col in columnsToUse[2:length(columnsToUse)])\n  ctrFormula<-paste0(ctrFormula,\"+\",col,\"Prepped\")\n\nctrFormula<-formula(ctrFormula)\n\n\n###############\n# Create train & test\n###############\nsizeTrain <-1000000\nsizeTest <- 1000000 \ntrainSet<-ctrData[1:sizeTrain,]\ntestSet<-ctrData[(sizeTrain+1):(sizeTrain+1+sizeTest),]\n\n#assert\nif(sum(trainSet$id %in% testSet$id) > 0) print(!!\"SAME ID IN TRAIN AND TEST!!\")\n\n#################\n# Prep trainset\n#################\nfor(col in columnsToUse){\n  sortedNames<-names(sort(table(trainSet[,col]),decreasing = T))\n  top10SortedNames<-sortedNames[1:min(10,length(sortedNames))]\n  valueInTop10 <- trainSet[,col] %in% top10SortedNames\n  \n  newColName<-paste0(col,\"Prepped\")\n  trainSet[,newColName]<-trainSet[,col]\n  trainSet[!valueInTop10,newColName]<-rep(\"Other\",sum(!valueInTop10))\n}\n\n###########################\n# TRAIN MODEL\n###########################\nrm(model)\nmodel<-glm(formula=ctrFormula,family = binomial(link=\"logit\"),data=trainSet,control = list(maxit = 100),x=F,y=F)\n\n########################\n#PREP TEST\n########################\nfor(col in columnsToUse){  \n  newColName<-paste0(col,\"Prepped\")\n  testSet[,newColName]<-testSet[,col]\n  \n  isNewValue<-!(testSet[,newColName] %in% unique(trainSet[,newColName]))\n  testSet[isNewValue,newColName]<-NA\n  print(paste0(newColName,\" NA:\", sum(isNewValue)))\n}\n###########################\n# TEST MODEL\n###########################\n\n\nrm(predictions)\npredictions<-predict(model,testSet,type=\"response\")\nprint(sum(is.na(predictions)))\npredictions[is.na(predictions)]<-0.17\n\nllfun(actual = testSet$clickNum,prediction = predictions)\n\n\n\n",
+    "created" : 1419430899737.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1088160132",
+    "id" : "2BEC0E52",
+    "lastKnownWriteTime" : 1419698387,
+    "path" : "~/Ordina/Kaggle/CTP_Project/Preprocess.R",
+    "project_path" : "Preprocess.R",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "source_on_save" : false,
+    "type" : "r_source"
+}

@@ -1,0 +1,17 @@
+{
+    "contents" : "for(col in names(ctrData)[-1]){\n  sortedTable<-sort(prop.table(table(ctrData[,col])),decreasing = T)\n  print(paste0(col,\":\",sum(sortedTable[1:10],na.rm = T)))\n}",
+    "created" : 1419697948818.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2684021647",
+    "id" : "BE9C79A0",
+    "lastKnownWriteTime" : 1419698117,
+    "path" : "~/Ordina/Kaggle/CTP_Project/Testing.R",
+    "project_path" : "Testing.R",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "source_on_save" : false,
+    "type" : "r_source"
+}

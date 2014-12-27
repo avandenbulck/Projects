@@ -1,0 +1,16 @@
+{
+    "contents" : "(llfun <- function(actual, prediction) {\n  epsilon <- .000000000000001\n  yhat <- pmin(pmax(prediction, epsilon), 1-epsilon)\n  logloss <- -mean(actual*log(yhat)\n                   + (1-actual)*log(1 - yhat))\n  return(logloss)\n})",
+    "created" : 1419690728053.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2716718219",
+    "id" : "6461D2F6",
+    "lastKnownWriteTime" : 1419690795,
+    "path" : "~/Ordina/Kaggle/CTP_Project/log loss.R",
+    "project_path" : "log loss.R",
+    "properties" : {
+    },
+    "source_on_save" : false,
+    "type" : "r_source"
+}
