@@ -1,3 +1,5 @@
+library(randomForest)
+#TODO: add "Other" category for categories not in top 10. For test set use if it contains "Other" then use "Other" otherwise "NA"
 ctrData<-read.csv("../Data/sample.csv",colClasses=c(rep("character",24)))
 
 #The weird name gave problems
@@ -13,11 +15,8 @@ columnsToUse<-
     "device_conn_type",
     "C15",
     "C16",
-    "C18",
-    "site_category",
-    "app_domain",
-    "app_category"
-    )
+    "C18"
+  )
 
 #assert
 isColNotInNames<- !(columnsToUse %in% names(ctrData))
@@ -36,10 +35,10 @@ ctrFormula<-formula(ctrFormula)
 ###############
 # Create train & test
 ###############
-sizeTrain <-1000000
+sizeTrain <-100000
 sizeTest <- 1000000 
 trainSet<-ctrData[1:sizeTrain,]
-testSet<-ctrData[(sizeTrain+1):(sizeTrain+1+sizeTest),]
+testSet<-ctrData[(nrow(ctrData)-sizeTest):nrow(ctrData),]
 
 #assert
 if(sum(trainSet$id %in% testSet$id) > 0) print(!!"SAME ID IN TRAIN AND TEST!!")
@@ -61,8 +60,8 @@ for(col in columnsToUse){
 # TRAIN MODEL
 ###########################
 rm(model)
-model<-glm(formula=ctrFormula,family = binomial(link="logit"),data=trainSet,control = list(maxit = 100),x=F,y=F)
-
+#model<-glm(formula=ctrFormula,family = binomial(link="logit"),data=trainSet,control = list(maxit = 100),x=F,y=F)
+model<-randomForest(formula = ctrFormula,data=trainSet,importance = T,ntree = 50)
 ########################
 #PREP TEST
 ########################
@@ -70,8 +69,13 @@ for(col in columnsToUse){
   newColName<-paste0(col,"Prepped")
   testSet[,newColName]<-testSet[,col]
   
-  isNewValue<-!(testSet[,newColName] %in% unique(trainSet[,newColName]))
-  testSet[isNewValue,newColName]<-NA
+  uniqueColValues <- unique(trainSet[,newColName])
+  
+  isNewValue<-!(testSet[,newColName] %in% uniqueColValues)
+  if("Other" %in% uniqueColValues)
+    testSet[isNewValue,newColName]<-"Other"
+  else 
+    testSet[isNewValue,newColName]<-NA
   print(paste0(newColName," NA:", sum(isNewValue)))
 }
 ###########################
@@ -80,6 +84,7 @@ for(col in columnsToUse){
 
 
 rm(predictions)
+#predictions<-predict(model,testSet,type="response")
 predictions<-predict(model,testSet,type="response")
 print(sum(is.na(predictions)))
 predictions[is.na(predictions)]<-0.17
